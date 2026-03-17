@@ -25,7 +25,6 @@ body{
   padding:15px;
 }
 
-/* HEADER WITH PHOTO */
 .header{
   width:100%;
   height:180px;
@@ -105,7 +104,6 @@ button{
 
 <div class="container">
 
-  <!-- HEADER PHOTO -->
   <div class="header">
     <div class="overlay">
       <h1>📸 DS26_OW Portal</h1>
@@ -138,11 +136,12 @@ function createSlot(containerId){
 
     <input placeholder="Latitude">
     <input placeholder="Longitude">
+    <input placeholder="Date & Time (YYYY:MM:DD HH:MM:SS)">
 
     <button>Download</button>
   `;
 
-  let [file, img, ocr, filename, desc, software, model, make, lat, lon, btn] = container.children;
+  let [file, img, ocr, filename, desc, software, model, make, lat, lon, dateTime, btn] = container.children;
   let original;
 
   function extractCoordinates(text){
@@ -185,6 +184,10 @@ function createSlot(containerId){
           lat.value=coords.lat.toFixed(6);
           lon.value=coords.lon.toFixed(6);
         }
+
+        // Auto detect date/time from OCR (format: YYYY:MM:DD HH:MM:SS)
+        let dt=text.match(/(\d{4}[:\-]\d{2}[:\-]\d{2})[ T]*(\d{2}:\d{2}:\d{2})/);
+        if(dt) dateTime.value = dt[1].replace(/-/g,':') + ' ' + dt[2];
       });
     };
     reader.readAsDataURL(f);
@@ -206,6 +209,8 @@ function createSlot(containerId){
     exifObj["0th"][piexif.ImageIFD.Software]=software.value;
     exifObj["0th"][piexif.ImageIFD.Model]=model.value;
     exifObj["0th"][piexif.ImageIFD.Make]=make.value;
+
+    if(dateTime.value) exifObj["0th"][piexif.ImageIFD.DateTime]=dateTime.value;
 
     let la=parseFloat(lat.value);
     let lo=parseFloat(lon.value);
